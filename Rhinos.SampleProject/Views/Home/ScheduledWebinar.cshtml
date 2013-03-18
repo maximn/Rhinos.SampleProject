@@ -1,0 +1,116 @@
+﻿@using Google.YouTube
+@model Rhinos.SampleProject.Models.WebinarQuestions
+
+@{
+    ViewBag.Title = "ScheduledWebinar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        $(".icon-thumbs-up").click(function(event) {
+            var target = event.target;
+            $(target).hide();
+            $.ajax({
+                type: "POST",
+                url: "/Home/VoteUp/" + $(target).attr('data-id'),
+                success: function(data) {
+                    var votesSpan = $(target).prev();
+                    var newVotes = parseInt(votesSpan.html()) + 1;
+                    debugger;
+                    votesSpan.html(newVotes);
+                }
+            });
+        });
+    });
+</script>
+
+<div class="container">
+    <fieldset>
+        <legend>@Model.Title</legend>
+
+        @foreach (var question in Model.Questions)
+        {
+            if (!@question.IsHidden)
+            {
+            <div class="row well">
+                <div class="row">
+                    <div class="span10 lead">
+                        @question.Content
+                    </div>
+                    <div class="span1">
+                        <span>@question.Votes</span>
+                        <a class="icon-thumbs-up" href="#" data-id="@question.Id"></a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="span12">
+                        <h5>Comments :</h5>
+                        <ul class="media-list">
+
+                            @foreach (var comment in question.Comments)
+                            {
+                                <li class="media">
+                                    <div class="media-body">
+                                        <strong class="media-heading">@comment.Author</strong>
+                                        -
+                                            @comment.Content
+                                    </div>
+                                </li>
+                            }
+
+                        </ul>
+                    </div>
+                    <div>&nbsp; </div>
+                </div>
+                <div class="row">
+                    <div class="span12">
+                        @using (Html.BeginForm("AddComment", "Home", FormMethod.Post, new { @class = "form-inline" }))
+                        {
+                            <input type="hidden" name="webinarId" value="@Model.WebinarId"/>
+                            <input type="hidden" name="questionId" value="@question.Id"/>
+                            <input type="text" name="Author" placeholder="Author" class="span2" />
+                            <input type="text" name="Content" placeholder="Comment" class="span6" />
+                            <input type="submit" class="btn" value="Add" />
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+        }
+    </fieldset>
+
+
+    @using (Html.BeginForm("CreateQeustion", "Home", FormMethod.Post, new { @class = "form-horiozntal" }))
+    {
+        <div id="createQuestionModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3>Add a question</h3>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="WebinarId" value="@Model.WebinarId"/>
+                <div class="control-group">
+                    <textarea name="Content" rows="5"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </div>
+        </div>
+    }
+
+
+    <ul class="nav nav-pills">
+        <li>
+            @Html.ActionLink("Back to List", "Index")
+        </li>
+        <li>
+            <a href="#createQuestionModal" data-toggle="modal">Add Question</a>
+        </li>
+    </ul>
+
+
+</div>

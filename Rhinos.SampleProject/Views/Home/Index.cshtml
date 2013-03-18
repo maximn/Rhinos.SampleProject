@@ -1,0 +1,110 @@
+﻿@using Rhinos.SampleProject
+@using Rhinos.SampleProject.Authentication
+@using Rhinos.SampleProject.Models
+@model IEnumerable<ScheduledWebinar>
+
+@{
+    ViewBag.Title = "Webinars";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="~/Scripts/jquery.localtime.js"></script>
+<script type="text/javascript">$.localtime.setFormat("dd-MM-yyyy HH:mm");</script>
+<script type="text/javascript" src="~/Scripts/youtube.js"></script>
+
+<div class="container">
+    <div class="hero-unit">
+        <div class="offset9">
+            @if (User.IsWebinarAdministrator())
+            {
+                using (Html.BeginForm("Logout", "Home", FormMethod.Post))
+                {
+                <button type="submit" class="btn btn-link">Logout</button>
+                }
+                
+                <a href="#createWebinarModal" class="btn btn-large" data-toggle="modal"><i class="icon-plus-sign"></i></a>
+                
+                using (Html.BeginForm("CreateWebinar", "Home", FormMethod.Post, new { @class = "form-horizontal" }))
+                {
+                <div id="createWebinarModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h3>Create a webinar</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="control-group">
+                            <label class="control-label" for="inputTitle">Title</label>
+                            <div class="controls">
+                                <input name="title" id="inputTitle" type="text" class="input-small">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="inputDateUtc">Date UTC</label>
+                            <div class="controls">
+                                <input name="scheduledDateUtc" id="inputDateUtc" type="date" class="input-medium">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="inputTimeUtc">Time UTC</label>
+                            <div class="controls">
+                                <input name="scheduledTimeUtc" id="inputTimeUtc" type="time" class="input-small">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+                </div>
+                }
+
+            }
+            else
+            {
+                <a href="#loginModal" class="btn btn-link" data-toggle="modal">Login</a>
+ 
+                <!-- Modal -->
+                using (Html.BeginForm("Login", "Home", FormMethod.Post, new { @class = "form-inline" }))
+                {
+                <div id="loginModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h3 id="myModalLabel">Login as adminisrtrator</h3>
+                    </div>
+                    <div class="modal-body">
+
+                        <input type="text" name="Username" class="input-small" placeholder="Username">
+                        <input type="password" name="Password" class="input-small" placeholder="Password">
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </div>
+                }
+            }
+        </div>
+        <h1 class="text-center">Webinars</h1>
+    </div>
+
+    @if (Model.Any())
+    {
+        <h2>Upcoming
+        </h2>
+        foreach (ScheduledWebinar webinar in Model)
+        {
+        <div class="row well">
+            <div class="span12">
+                <span class="lead">
+                    @webinar.Title
+                </span>
+                @Html.ActionLink("(more)", "ScheduledWebinar", new { id = webinar.Id })
+                <h6 class="muted"><span class="localtime">@webinar.ScheduledTimeUtc.ToString("u")</span> </h6>
+
+            </div>
+        </div>
+        }
+    }
+    <h2 id="history">History</h2>
+    <div id="youtubeWait" class="lead">Loading data from youtube...</div>
+</div>
